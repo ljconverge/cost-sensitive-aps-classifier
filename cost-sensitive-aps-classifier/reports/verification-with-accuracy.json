@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "full_test_rows": 16000,
+  "metrics": {
+    "threshold": 0.11,
+    "tn": 15393,
+    "fp": 232,
+    "fn": 28,
+    "tp": 347,
+    "cost": 16320,
+    "accuracy": 0.98375,
+    "roc_auc": 0.9933397333333334,
+    "average_precision": 0.8817975028955924,
+    "recall": 0.9253333333333333,
+    "precision": 0.5993091537132987,
+    "f1": 0.7274633123689728
+  },
+  "integration_checks": [
+    "release integrity",
+    "full-test metric reproduction",
+    "raw CSV scoring parity",
+    "CSV export",
+    "four concurrent scoring calls",
+    "10,000-row batch"
+  ],
+  "latency": {
+    "1": {
+      "csv_bytes": 2095,
+      "median_ms": 31.42179999849759,
+      "maximum_ms": 34.154799999669194,
+      "repetitions": 3
+    },
+    "100": {
+      "csv_bytes": 103176,
+      "median_ms": 33.30749999440741,
+      "maximum_ms": 67.14470000588335,
+      "repetitions": 3
+    },
+    "1000": {
+      "csv_bytes": 1040553,
+      "median_ms": 72.95819999853848,
+      "maximum_ms": 77.31140000396408,
+      "repetitions": 3
+    },
+    "10000": {
+      "csv_bytes": 10424884,
+      "median_ms": 1300.640100002056,
+      "maximum_ms": 1339.1526000050362,
+      "repetitions": 3
+    }
+  },
+  "cost_bootstrap_95_percent": [
+    11680.0,
+    21800.0
+  ],
+  "saving_vs_050_bootstrap_95_percent": [
+    49369.25,
+    71771.0
+  ]
+}

@@ -1,5 +1,8 @@
 from io import BytesIO
 from pathlib import Path
+import json
+import math
+from service import digest
 import streamlit as st
 from streamlit.testing.v1 import AppTest
 
@@ -47,6 +50,27 @@ def test_auth_default_fails_closed(monkeypatch, release):
     assert "Access has not been configured" in at.error[0].value
     assert len(at.radio) == 0
 
+def test_accuracy_with_complete_missing_and_zero_counts(monkeypatch, release):
+    path = release / "metadata.json"
+    meta = json.loads(path.read_text())
+    meta["metrics"] = {
+        "complete": {"tn": 7, "fp": 1, "fn": 1, "tp": 1, "cost": 510},
+        "missing": {"cost": 0},
+        "partial": {"tn": 7, "tp": 1},
+        "empty": {"tn": 0, "fp": 0, "fn": 0, "tp": 0},
+    }
+    path.write_text(json.dumps(meta), encoding="utf-8")
+    manifest_path = release / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["metadata.json"] = digest(path)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    at = app(monkeypatch, release)
+    at.radio(key="page").set_value("Model record").run()
+    assert not at.exception
+    table = at.dataframe[0].value
+    assert table.loc["complete", "Accuracy (%)"] == 80.0
+    for row in ["missing", "partial", "empty"]:
+        assert math.isnan(table.loc[row, "Accuracy (%)"])
 
 def test_upload_score_filter_detail_export_clear(monkeypatch, release, raw):
     # AppTest cannot directly manipulate a file_uploader in this Streamlit

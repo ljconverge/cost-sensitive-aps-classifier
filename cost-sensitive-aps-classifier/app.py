@@ -180,7 +180,26 @@ elif page == "Research diagnostics":
 else:
     st.title("Model record")
     st.caption(f"Built {meta['created_utc']} · release {meta['model_id']}")
-    st.dataframe(pd.DataFrame(meta["metrics"]).T, width="stretch")
+    metrics_table = pd.DataFrame(meta["metrics"]).T
+    counts = metrics_table.reindex(columns=["tn", "fp", "fn", "tp"]).apply(
+        pd.to_numeric, errors="coerce"
+    )
+    total = counts.sum(axis=1, min_count=4)
+    metrics_table["Accuracy (%)"] = (
+            100 * (counts["tn"] + counts["tp"]) / total.where(total > 0)
+    )
+    st.dataframe(
+        metrics_table,
+        width="stretch",
+        column_config={
+            "Accuracy (%)": st.column_config.NumberColumn("Accuracy (%)", format="%.3f")
+        },
+    )
+    st.caption(
+        "Accuracy is calculated at each row's decision threshold. "
+        "A missing value means complete confusion counts are unavailable. "
+        "Benchmark cost and APS-failure recall remain the primary criteria."
+    )
     st.write("All learned preprocessing was fitted on the 85% fit partition. The threshold was selected on a separate stratified 15% validation partition. The same fitted model was then evaluated on the official test data.")
     st.write("Scope: APS-related versus non-APS-related failure classification. The benchmark does not establish breakdown timing, remaining useful life, replacement instructions, or dispatch safety.")
     with st.expander("Release provenance"):

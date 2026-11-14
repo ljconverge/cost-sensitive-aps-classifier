@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score)
-
+from sklearn.metrics import accuracy_score
 
 def cost_row(y, scores, threshold):
     y = np.asarray(y)
@@ -49,6 +49,7 @@ def report(y, scores, threshold):
     scores = np.asarray(scores)
     pred = scores >= threshold
     return dict(**cost_row(y, scores, threshold),
+                accuracy=float(accuracy_score(y, pred)),
                 roc_auc=float(roc_auc_score(y, scores)),
                 average_precision=float(average_precision_score(y, scores)),
                 recall=float(recall_score(y, pred, zero_division=0)),
